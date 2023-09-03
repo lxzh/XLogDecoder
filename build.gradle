@@ -18,11 +18,13 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2-native-mt")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.2-native-mt")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 
     implementation("com.squareup.okhttp3:okhttp:4.9.2")
-    implementation("com.google.code.gson:gson:2.8.8")
+    implementation('com.google.code.gson:gson:2.8.9')
     implementation("com.alibaba:fastjson:1.2.78")
     implementation("org.python:jython-slim:2.7.2")
 }

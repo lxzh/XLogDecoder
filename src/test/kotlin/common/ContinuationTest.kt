@@ -3,6 +3,7 @@ package common
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
+import org.junit.jupiter.api.Test
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -16,11 +17,14 @@ internal class ContinuationTest {
     @org.junit.jupiter.api.Test
     fun suspendCoroutineTest() = runBlocking {
         println("111")
-        run {
-            delay(2000)
-            println("222")
+        val j = launch {
+            val r = test(this)
+            println(r)
         }
+        delay(100)
+        j.cancel()
         println("333")
+        delay(5000)
     }
 
     private suspend fun suspendCoroutineGetTest(): String? = suspendCoroutine {
@@ -122,19 +126,20 @@ internal class ContinuationTest {
         launch(Dispatchers.Default) {
             println("11111")
             launch(Dispatchers.IO) {
-                println(test())
+                //println(test())
             }
             println("33333")
             println("44444")
         }
     }
 
-    suspend fun test(): String = suspendCoroutine<String> {
+    suspend fun test(scope: CoroutineScope): String = suspendCancellableCoroutine {
         println(Thread.currentThread().name)
-        runBlocking {
-            delay(5000)
+        scope.launch {
+            delay(1000)
+            println(" start resume 22222")
+            it.resume("22222")
         }
-        it.resume("22222")
     }
 
     @org.junit.jupiter.api.Test

@@ -1,13 +1,18 @@
 package common
 
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
+import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashSet
+import kotlin.collections.ArrayList
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
 
 internal class CommonTest {
+    private var s: String? = ""
+    private var s1: String? = null
+
     @org.junit.jupiter.api.Test
     fun takeIfTest(): Unit = runBlocking {
         var a: Int? = 1
@@ -92,10 +97,39 @@ internal class CommonTest {
         } else {
             println("spend $time nanoseconds")
         }
+    }
 
+    @Test
+    fun testTime() {
+        val fmt = SimpleDateFormat("yyyyMMdd")
+        println(fmt.parse("20211105").time)
+        println(fmt.format(Date(1635984000000L)))
+    }
+
+    @Test
+    fun test3() {
+        println("0".fixArea("1", "2"))
+    }
+
+    @Test
+    fun test4() {
+        println(s1 == s)
     }
 }
 
+fun <T> Comparable<T>.fixArea(min: T, max: T): T {
+    return when {
+        this < min -> {
+            min
+        }
+        this > max -> {
+            max
+        }
+        else -> {
+            this as T
+        }
+    }
+}
 
 internal class LimitedQueue<E>(private val limit: Int) : LinkedList<E>() {
     override fun add(o: E): Boolean {
