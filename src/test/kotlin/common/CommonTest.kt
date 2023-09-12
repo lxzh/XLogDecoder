@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
@@ -13,7 +12,7 @@ internal class CommonTest {
     private var s: String? = ""
     private var s1: String? = null
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun takeIfTest(): Unit = runBlocking {
         var a: Int? = 1
         var b: Int? = 2
@@ -35,7 +34,7 @@ internal class CommonTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun takeQueue(): Unit = runBlocking {
         val queue: Queue<FloatArray> = LimitedQueue(3)
         for (i in 1..100) {
@@ -87,7 +86,7 @@ internal class CommonTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun commonTest(): Unit = runBlocking {
         val time = measureNanoTime {
             test2()

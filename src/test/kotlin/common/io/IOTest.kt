@@ -1,5 +1,6 @@
-package common
+package common.io
 
+import org.junit.jupiter.api.Test
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -11,11 +12,11 @@ internal class IOTest {
         const val TEST_PATH = "E:\\Note\\MarkDown\\Kotlin\\test"
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun main() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun copyFileCommon() {
         val originFile = File("$TEST_PATH\\copytest1.txt")
         val dstFile = File("$TEST_PATH\\copytest2.txt")
@@ -35,7 +36,7 @@ internal class IOTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun copyFileUseCopyTo() {
         val originFile = File("$TEST_PATH\\copytest1.txt")
         val dstFile = File("$TEST_PATH\\copytest2.txt")
@@ -48,7 +49,7 @@ internal class IOTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun appendFile() {
         val originFile = File("$TEST_PATH\\copytest1.txt")
         val dstFile = File("$TEST_PATH\\copytest2.txt")
@@ -61,7 +62,7 @@ internal class IOTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun copyFileDirect() {
         val originFile = File("$TEST_PATH\\copytest1.txt")
         val dstFile = File("$TEST_PATH\\copytest2.txt")
@@ -72,7 +73,7 @@ internal class IOTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun iterateOverFiles() {
         val path = File("E:\\Note\\MarkDown")
         val files = path.walkBottomUp().onEnter {
@@ -89,7 +90,7 @@ internal class IOTest {
         //}
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun deleteFiles() {
         val path = File("$TEST_PATH\\testDelete - 副本\\")
         val result = path.deleteRecursively()

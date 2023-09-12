@@ -1,4 +1,4 @@
-package common
+package common.coroutine
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
@@ -14,7 +14,7 @@ internal class ContinuationTest {
         const val TEST_PATH = "E:\\Note\\MarkDown\\Kotlin\\test"
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun suspendCoroutineTest() = runBlocking {
         println("111")
         val j = launch {
@@ -34,7 +34,7 @@ internal class ContinuationTest {
     }
 
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun flowTest(): Unit = runBlocking {
         println("start")
         foo().transform {
@@ -78,7 +78,7 @@ internal class ContinuationTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun launchTest(): Unit = runBlocking {
         val job = launch {
             repeat(1000) { i ->
@@ -93,7 +93,7 @@ internal class ContinuationTest {
         println("main: Now I can quit.")
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun zipTest() = runBlocking {
         val nums = (1..6).asFlow().onEach {
             delay(10)
@@ -108,7 +108,7 @@ internal class ContinuationTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun asyncTest(): Unit = runBlocking {
         launch(Dispatchers.Default) {
             println("11111")
@@ -121,7 +121,7 @@ internal class ContinuationTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun withContextTest(): Unit = runBlocking {
         launch(Dispatchers.Default) {
             println("11111")
@@ -142,7 +142,7 @@ internal class ContinuationTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun flowTest2(): Unit = runBlocking {
         val flowData: MutableSharedFlow<Int> = MutableSharedFlow(1, 0, BufferOverflow.DROP_LATEST)
         launch {

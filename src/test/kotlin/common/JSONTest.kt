@@ -2,11 +2,12 @@ package common
 
 import com.google.gson.JsonParser
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Test
 import kotlin.math.ceil
 
 @Suppress("DuplicatedCode")
 internal class JSONTest {
-    @org.junit.jupiter.api.Test
+    @Test
     fun jsonTest() = runBlocking {
         val s =
             """“[["TEMP",31.64,""],["HUMI",34.75,"ppb"],["CO",0,"ppm"],["H2S",0,"ppm"],["O2",21.1,"%VOL"],["Ex",0,"%LEL"]]”
@@ -23,7 +24,7 @@ internal class JSONTest {
         }
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun floatTest() = runBlocking {
         val f = -1.00f
         println(ceil(f.toDouble()).toLong())
@@ -41,4 +42,5 @@ internal class JSONTest {
 //    }
 
 }
-data class DataClassSimple(var a : Int = 1, var b : Int = 4)
+
+data class DataClassSimple(var a: Int = 1, var b: Int = 4)

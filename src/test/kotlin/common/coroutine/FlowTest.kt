@@ -1,4 +1,4 @@
-package common
+package common.coroutine
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
@@ -34,7 +34,7 @@ internal class FlowTest {
         println("Done")
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     fun flowLaunchInTest(): Unit = runBlocking {
         flow {
             repeat(10) {

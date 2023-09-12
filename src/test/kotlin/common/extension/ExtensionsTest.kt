@@ -1,4 +1,4 @@
-package common
+package common.extension
 
 @Suppress("DuplicatedCode")
 internal class ExtensionsTest {

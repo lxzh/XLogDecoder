@@ -1,4 +1,4 @@
-package common
+package common.regex
 
 import kotlinx.coroutines.runBlocking
 import java.util.regex.Pattern
