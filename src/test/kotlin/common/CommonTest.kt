@@ -112,7 +112,9 @@ internal class CommonTest {
 
     @Test
     fun test4() {
-        println(s1 == s)
+        val a = listOf(4, 1, 2, 5, 9, 8, 7, 44, 55, 1, 2, 3, 4, 5, 5, 5, 5, 6, 61, 1, 2, 1, 2)
+        println(a)
+        println(a.toSet().sorted())
     }
 }
 

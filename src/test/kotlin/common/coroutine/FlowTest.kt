@@ -141,4 +141,49 @@ internal class FlowTest {
         }
     }
 
+    @Test
+    fun coroutineScopePlusTest(): Unit = runBlocking {
+        val j = launch(Dispatchers.IO) {
+            delay(500)
+            println("1: " + Thread.currentThread().name)
+        }
+        launch(j) {
+            println(this.coroutineContext)
+            println("3: " + Thread.currentThread().name)
+            delay(50)
+            println("4: " + Thread.currentThread().name)
+            delay(500)
+            j.cancel()
+            println("5: " + Thread.currentThread().name)
+            delay(1000)
+            println("6: " + Thread.currentThread().name)
+        }
+    }
+
+    @Test
+    fun flowMergeTest(): Unit = runBlocking {
+        val f1 = flow {
+            repeat(10) {
+                delay(100)
+                emit(it)
+            }
+        }
+        val f2 = flow {
+            repeat(10) {
+                delay(10)
+                emit(it + 10)
+            }
+        }
+        val f3 = flow {
+            repeat(10) {
+                delay(50)
+                emit(it + 20)
+            }
+        }
+        var r = merge(f1, f2, f3).toList().sorted()
+        println("function1: $r")
+        r = merge(f1, merge(f2, f3)).toList().sorted()
+        println("function2: $r")
+    }
+
 }
