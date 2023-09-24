@@ -110,12 +110,43 @@ internal class CommonTest {
         println("0".fixArea("1", "2"))
     }
 
+    val t by lazy {
+        TTT()
+    }
+
+    internal class TTT()
+
     @Test
     fun test4() {
-        val a = listOf(4, 1, 2, 5, 9, 8, 7, 44, 55, 1, 2, 3, 4, 5, 5, 5, 5, 6, 61, 1, 2, 1, 2)
-        println(a)
-        println(a.toSet().sorted())
+        println("0".fixArea("1", "2"))
+        println(t)
+        println(t)
+        println(t)
     }
+
+    @Test
+    fun test5() {
+        val v = TestValueClass(setOf(1, 2, 3, 4))
+        println("$v")
+    }
+
+    @Test
+    fun flatMapTest() {
+        val list = listOf(listOf(1, 2, 3), listOf(1, 2, 3), listOf(1, 2, 3))
+        list.apply {
+            println(this)
+            flatten().apply {
+                println(this)
+            }
+        }
+    }
+
+}
+
+@JvmInline
+value class TestValueClass(
+    val value: Set<*>,
+) {
 }
 
 fun <T> Comparable<T>.fixArea(min: T, max: T): T {
