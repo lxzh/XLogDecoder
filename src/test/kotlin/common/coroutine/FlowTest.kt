@@ -79,13 +79,14 @@ internal class FlowTest {
         println("result: $r")
     }
 
-    private val aStateFlow: MutableStateFlow<Int?> = MutableStateFlow(null)
+    private val aStateFlow: MutableStateFlow<Int?> = MutableStateFlow(-1)
 
     @Test
     fun flowWithTimeOut2(): Unit = runBlocking {
         val aFlow = flow {
             println("wait emit")
             delay(1000)
+            emit(1)
             emit(null)
             println("success emit")
         }
@@ -184,6 +185,32 @@ internal class FlowTest {
         println("function1: $r")
         r = merge(f1, merge(f2, f3)).toList().sorted()
         println("function2: $r")
+    }
+
+    data class TempClass(val data: Int, val opt: Int)
+
+    private val aSharedFlow: MutableSharedFlow<Int> = MutableSharedFlow()
+
+    @Test
+    fun flowCollectTest(): Unit = runBlocking {
+        val f = merge(aSharedFlow, aStateFlow)
+        launch {
+            delay(100)
+            aSharedFlow.emit(111)
+            delay(100)
+            aStateFlow.emit(-2)
+        }
+        launch {
+            f.collect {
+                println("a: $it")
+            }
+        }
+        delay(2000)
+        launch {
+            f.collect {
+                println("b: $it")
+            }
+        }
     }
 
 }

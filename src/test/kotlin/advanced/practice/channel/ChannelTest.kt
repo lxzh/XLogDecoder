@@ -5,7 +5,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.TickerMode
 import kotlinx.coroutines.channels.ticker
 import org.junit.jupiter.api.Test
-import java.math.BigInteger
 
 class ChannelTest {
     @Test
@@ -53,7 +52,6 @@ class ChannelTest {
         }
     }
 
-    @OptIn(ObsoleteCoroutinesApi::class)
     @Test
     fun withTimeout(): Unit = runBlocking {
         val t1 = withTimeoutOrNull(100) {
