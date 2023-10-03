@@ -55,12 +55,18 @@ class CommonTest1 {
 
     @Test
     fun aClassTest(): Unit = runBlocking {
-        val a = A()
-        launch {
-            a.a()
+        val b = A()
+        launch(Dispatchers.IO) {
+            b.a()
         }
-        launch {
-            a.d()
+        launch(Dispatchers.IO) {
+            b.b()
+        }
+        launch(Dispatchers.IO) {
+            A.c()
+        }
+        launch(Dispatchers.IO) {
+            b.d()
         }
     }
 }

@@ -213,4 +213,40 @@ internal class FlowTest {
         }
     }
 
+    @Test
+    fun tryEmitTest(): Unit = runBlocking {
+        val f: MutableSharedFlow<Int> = MutableSharedFlow(0, 1, BufferOverflow.DROP_OLDEST)
+        val tryEmit = true
+        suspend fun testEmit() {
+            repeat(5) {
+                delay(100)
+                f.emit(it)
+                println("emit, times: $it")
+            }
+        }
+
+        suspend fun testTryEmit() {
+            repeat(5) {
+                delay(100)
+                f.tryEmit(it).also { r ->
+                    println("tryEmit, times: $it, success: $r")
+                }
+            }
+        }
+
+        launch(Dispatchers.IO) {
+            f.collect {
+                delay(2000)
+                println("a: $it")
+            }
+        }
+        delay(200)
+        if (tryEmit) {
+            testTryEmit()
+        } else {
+            testEmit()
+        }
+
+    }
+
 }
