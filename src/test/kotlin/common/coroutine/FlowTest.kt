@@ -215,7 +215,7 @@ internal class FlowTest {
 
     @Test
     fun tryEmitTest(): Unit = runBlocking {
-        val f: MutableSharedFlow<Int> = MutableSharedFlow(0, 1, BufferOverflow.DROP_OLDEST)
+        val f: MutableSharedFlow<Int> = MutableSharedFlow(0, 1, BufferOverflow.SUSPEND)
         val tryEmit = true
         suspend fun testEmit() {
             repeat(5) {

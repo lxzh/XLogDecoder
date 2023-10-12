@@ -4,3 +4,4 @@ build
 .gradle
 /out/
 /src/test/kotlin/temp/
+/src/test/kotlin/common/temp/

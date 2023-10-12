@@ -1,2 +1,3 @@
 rootProject.name = 'KTDemo'
+include 'leetCode'
 
