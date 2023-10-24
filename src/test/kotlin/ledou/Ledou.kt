@@ -12,6 +12,9 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import ledou.api.LeDouApi
 import ledou.bean.FactionSource
+import ledou.bean.Jewel
+import ledou.bean.RoomEntity
+import ledou.bean.RoomType
 import ledou.client.*
 import okhttp3.MediaType.Companion.toMediaType
 import org.junit.jupiter.api.Test
@@ -19,6 +22,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 
 internal class LeDou {
@@ -35,17 +39,30 @@ internal class LeDou {
 
     @Test
     fun getKuangZang(): Unit = runBlocking {
-        var i = 0
-        repeat(100) {
+        println("开始寻找空闲矿蔵")
+        val list = ArrayList<String>()
+        for (i in 1..100) {
             delay(10)
-            findKuangZang(it + 1) { i++ }
+            findKuangZang(area_id = i) { area_id, index, jewel ->
+                if (jewel.status == 0) {
+                    val r1 = server.checkRequest { fightJewelWar(uid, area_id, index) }
+                    println("尝试占领矿蔵 [${area_id}_${index}], 等级: ${jewel.level}, ${r1.getString("msg")}")
+                    if (r1.getInt("is_win") != 1) {
+                        list.add("区域[${area_id}_${index}], 等级: ${jewel.level}, state: 0")
+                    }
+                }
+                if (jewel.is_me == 1) {
+                    println("我占领的矿蔵, 区域[${area_id}_${index}], ${jewel.desc}")
+                }
+            }
         }
-        println("找到${i}个空闲矿蔵")
+        println("找到${list.size}个空闲矿蔵")
+        list.forEach(::println)
     }
 
     @Test
     fun test(): Unit = runBlocking {
-        faction()
+
     }
 
     @Test
@@ -56,27 +73,23 @@ internal class LeDou {
         faction()
     }
 
+    @Test
+    fun viewRoomTest(): Unit = runBlocking {
+        viewRoom()
+    }
+
     private suspend fun findKuangZang(
         area_id: Int,
-        onFind: () -> Unit = {}
+        onFind: suspend (Int, Int, Jewel) -> Unit = { _, _, _ -> }
     ) {
         val r = server.checkRequest {
             getKuangZang(uid = uid, area_id = area_id)
         }
         //println("result: $r")
         val jewelList = r.jsonObject["jewel_list"]?.jsonArray
-        jewelList?.forEachIndexed { index, jewel ->
-            val state = jewel.getInt("status")
-            val level = jewel.getInt("level")
-            val name = jewel.getString("fac_name")
-            val isMe = jewel.getInt("is_me")
-            if (state == 0) {
-                println("区域: ${area_id}_${index}, 等级: $level, 占领者帮派: $name, isMe: $isMe, state: $state")
-                onFind()
-            }
-            if (isMe == 1) {
-                println("我占领的矿蔵 区域: ${area_id}_${index}, 等级: $level, 占领者帮派: $name")
-            }
+        jewelList?.forEachIndexed { index, je ->
+            val jewel: Jewel = jsonDefault.decodeFromJsonElement(je)
+            onFind(area_id, index, jewel)
         }
     }
 
@@ -211,6 +224,78 @@ internal class LeDou {
         //println(r)
     }
 
+    //练功房
+    private suspend fun viewRoom() {
+        val list = ArrayList<RoomEntity>().apply {
+            val spend = measureTimeMillis {
+                //getRoomList(RoomType.Type39_1).also(::addAll)
+                //getRoomList(RoomType.Type39_2).also(::addAll)
+                getRoomList(RoomType.Type59_1).also(::addAll)
+                getRoomList(RoomType.Type59_2).also(::addAll)
+                getRoomList(RoomType.Type60_1).also(::addAll)
+                getRoomList(RoomType.Type60_2).also(::addAll)
+            }
+            println("查找了${size}个床位, 耗时${spend / 1000}秒")
+        }
+        list.apply {
+            val enemyList: List<Long> = listOf(
+                29247250,
+                59180128,
+            )
+            val friendlyList: MutableSet<Long> = mutableSetOf(
+                601401,
+                35814365,
+            )
+            filter {
+                it.isEmpty
+            }.also {
+                println("找到${it.size}个空床位")
+                //it.forEach { room ->
+                //    println("${room.levelDesc} ${room.typeDesc} 第${room.pager}页")
+                //}
+            }
+
+            filter {
+                it.room.uid in friendlyList
+            }.also {
+                println("找到${it.size}个友军床位:")
+                it.forEach { room ->
+                    println(room)
+                    friendlyList.remove(room.room.uid)
+                }
+                println("${friendlyList.size}个友军床位掉了: \n${friendlyList}")
+            }
+            filter {
+                it.room.uid in enemyList
+            }.also {
+                println("找到${it.size}个敌军床位:")
+                it.forEach(::println)
+            }
+            filter {
+                it.room.fac_name == "天府" || it.room.fac_name == "萌萌大乐斗"
+            }.also {
+                println("找到${it.size}个敌帮床位:")
+                it.forEach(::println)
+            }
+        }
+    }
+
+    private suspend fun getRoomList(roomType: RoomType): ArrayList<RoomEntity> {
+        val list = ArrayList<RoomEntity>()
+        println("正在查找床位 ${roomType.desc}, 总页数: ${roomType.totalPager}")
+        for (pager in 1..roomType.totalPager) {
+            delay(10)
+            server.checkRequest {
+                viewRoom(uid, pager, roomType.level, roomType.type)
+            }.getJsonArray("room_array")?.also {
+                jsonDefault.decodeFromJsonElement<List<RoomEntity.Room>>(it).forEach { room ->
+                    list.add(RoomEntity(pager = pager + 1, roomType = roomType, room = room))
+                }
+            }
+        }
+        return list
+    }
+
     //家丁
     private suspend fun servant() {
         var r: JsonObject
@@ -241,10 +326,10 @@ internal class LeDou {
         var r = request()
         if (r is JsonObject && r.getInt("result") == 110) {
             println("登录超时: $r")
-            val r1 = server.refresh(uid, wxcode)
-            println("重试: $r1")
-            h5token = r1.getString("token")
-            r = request()
+            //val r1 = server.refresh(uid, wxcode)
+            //println("重试: $r1")
+            //h5token = r1.getString("token")
+            //r = request()
         }
         return r
     }

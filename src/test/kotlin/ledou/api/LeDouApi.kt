@@ -32,6 +32,17 @@ interface LeDouApi {
         @Field("cmd") cmd: String = "jewel_war",
     ): JsonObject
 
+    @FormUrlEncoded
+    @POST("/fcgi-bin/petpk")
+    suspend fun fightJewelWar(
+        @Field("uid") uid: String,
+        @Field("area_id") area_id: Int,
+        @Field("area_position") area_position: Int,
+        @Field("choose_secret_reel") choose_secret_reel: String = "0|0|0|0",
+        @Field("op") op: String = "fight",
+        @Field("cmd") cmd: String = "jewel_war",
+    ): JsonObject
+
     //历练
     @FormUrlEncoded
     @POST("/fcgi-bin/petpk")
@@ -103,6 +114,19 @@ interface LeDouApi {
         @Field("uid") uid: String,
         @Field("cmd") cmd: String = "qualifying",
         @Field("op") op: String = "fight",
+    ): JsonObject
+
+    @FormUrlEncoded
+    @POST("/fcgi-bin/petpk")
+    suspend fun viewRoom(
+        @Field("uid") uid: String,
+        @Field("page") page: Int,
+        //0: 10-39 1:40-59 2:无限制
+        @Field("level_index") level_index: Int,
+        //1: 百年 2: 千年
+        @Field("type") type: Int,
+        @Field("cmd") cmd: String = "exer_room",
+        @Field("op") op: String = "view_room",
     ): JsonObject
 
 
