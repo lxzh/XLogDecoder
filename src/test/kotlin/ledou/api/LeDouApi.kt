@@ -4,6 +4,7 @@ package ledou.api
 
 import kotlinx.serialization.json.JsonObject
 import retrofit2.http.Field
+import retrofit2.http.FieldMap
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
@@ -127,6 +128,22 @@ interface LeDouApi {
         @Field("type") type: Int,
         @Field("cmd") cmd: String = "exer_room",
         @Field("op") op: String = "view_room",
+    ): JsonObject
+
+    @FormUrlEncoded
+    @POST("/fcgi-bin/petpk")
+    suspend fun getGift(
+        @Field("uid") uid: String,
+        @FieldMap params: Map<String, String>,
+        @Field("is_double") is_double: String = "1",
+        @Field("cmd") cmd: String = "activity",
+    ): JsonObject
+
+    @FormUrlEncoded
+    @POST("/fcgi-bin/petpk")
+    suspend fun common(
+        @Field("uid") uid: String,
+        @FieldMap params: Map<String, String>,
     ): JsonObject
 
 

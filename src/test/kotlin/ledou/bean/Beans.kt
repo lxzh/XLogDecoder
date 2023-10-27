@@ -1,7 +1,7 @@
 package ledou.bean
 
 import kotlinx.serialization.Serializable
-import java.net.URLDecoder
+import ledou.decoded
 
 @Serializable
 data class FactionSource(
@@ -28,7 +28,7 @@ data class Jewel(
     val role_name: String? = "",
     val fac_name: String? = "",
     val is_me: Int = 0,
-    val userName: String = URLDecoder.decode(role_name ?: "", "UTF-8"),
+    val userName: String = role_name.orEmpty().decoded,
 ) {
     val desc: String = "等级: ${level}, 占领者: [$fac_name][$userName]"
 }
@@ -72,6 +72,84 @@ data class RoomEntity(
         val sex: Int = 0,
         val role_skin: Int = 0,
         val cold: Int = 0,
-        val userName: String = URLDecoder.decode(name, "UTF-8"),
+        val userName: String = name.decoded,
     )
+}
+
+@Serializable
+data class TowelInfo(
+    val monsterInfo: List<MonsterInfo>,
+    val baseInfo: BaseInfo,
+) {
+    @Serializable
+    data class MonsterInfo(
+        val id: Int,
+        val index: Int,
+        val status: Int,
+        val name: String,
+        val level: Int,
+    )
+
+    @Serializable
+    data class BaseInfo(
+        val layer: Int,
+        val barrier: Int,
+        val bg: Int,
+        val barrierType: Int,
+        val revive: Int,
+        val buyNum: Int,
+        val cost: Int,
+        val alive: Int,
+    )
+
+}
+
+//拜访奖励
+@Serializable
+data class MeridianAwards(
+    //100001 雪莲
+    val id: Long = 0,
+    val type: String = "",
+    val index: Long = 0,
+    val num: Int = 0,
+    val name: String = "",
+)
+
+@Serializable
+data class FriendInfo(
+    val can_skip: Int,
+    val type: Int,
+    val allow_add_friend: Int,
+    val auto_add_friend: Int,
+    val getvit: Int = 0,
+    val maxvit: Int = 0,
+    val getwinpoints: Int = 0,
+    val maxwinpoints: Int = 0,
+    val getkey: Int = 0,
+    val maxkey: Int = 0,
+    val friendlist: List<Friend> = emptyList(),
+) {
+    @Serializable
+    data class Friend(
+        val uid: String,
+        val vip_lvl: Int,
+        val month_vip: Int,
+        val sex: Int,
+        val level: Int,
+        val power: Long,
+        val uin: String,
+        val can_fight: Int,
+        val name: String,
+        val plat_friend: Int,
+        val picture_frame_artid: String,
+        val title_frame_artid: String,
+        val cancel_status: Int,
+        val can_sendvit: Int,
+        val can_getvit: Int,
+        val getvit_status: Int,
+        val login_time: Long,
+    ) {
+        val realName = name.decoded
+    }
+
 }
