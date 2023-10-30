@@ -1,5 +1,6 @@
 package ledou.bean
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ledou.decoded
 
@@ -153,3 +154,11 @@ data class FriendInfo(
     }
 
 }
+
+@Serializable
+data class QualifyingTeamMember(
+    val uid: String,
+    val level: Int,
+    @SerialName("attack_power")
+    val power: Int,
+)
