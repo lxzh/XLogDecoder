@@ -4,11 +4,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import ledou.decoded
 
+//光明顶资源
 @Serializable
 data class FactionSource(
     val id: Int,
 
-    //1野马 2粮草 3强盗 4探子 5阵营 6
+    //1野马 2粮草 3强盗 4探子 5阵营 6总阵营
     val type: Int,
 
     val distance: Int,
@@ -17,11 +18,22 @@ data class FactionSource(
 
     val quality: Int,
 
-    val left_hp: Int = 0,
+    val left_hp: Int = -1,
 
     val type_index: Int,
-)
+) {
+    val sort = when (type) {
+        1 -> 1
+        2 -> 2
+        3 -> 4
+        4 -> 4
+        5 -> 3
+        6 -> 3
+        else -> type
+    }
+}
 
+//矿藏
 @Serializable
 data class Jewel(
     val status: Int,
@@ -34,6 +46,7 @@ data class Jewel(
     val desc: String = "等级: ${level}, 占领者: [$fac_name][$userName]"
 }
 
+//练功房床位
 enum class RoomType(
     val level: Int,
     val type: Int,
@@ -67,7 +80,7 @@ data class RoomEntity(
         val name: String = "",
         //战力
         val fight_power: Long = 0L,
-        val fac_id: String = "",
+        val fac_id: Long = 0L,
         val fac_name: String = "",
         val head_img: String = "",
         val sex: Int = 0,
@@ -77,6 +90,7 @@ data class RoomEntity(
     )
 }
 
+//千层塔
 @Serializable
 data class TowelInfo(
     val monsterInfo: List<MonsterInfo>,
@@ -116,6 +130,7 @@ data class MeridianAwards(
     val name: String = "",
 )
 
+//乐斗好友
 @Serializable
 data class FriendInfo(
     val can_skip: Int,
@@ -155,10 +170,25 @@ data class FriendInfo(
 
 }
 
+//王者组队匹配队伍成员
 @Serializable
 data class QualifyingTeamMember(
     val uid: String,
     val level: Int,
     @SerialName("attack_power")
     val power: Int,
+)
+
+//每日任务奖励
+@Serializable
+class ActiveGift(
+    val id: Int,
+    val name: String,
+    val desc: String,
+    val icon: Int = 0,
+    val command: String,
+    val recommend: Int,
+    val curnum: Int,
+    val targetnum: Int,
+    val status: Int
 )
