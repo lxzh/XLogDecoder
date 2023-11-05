@@ -95,6 +95,7 @@ data class RoomEntity(
 data class TowelInfo(
     val monsterInfo: List<MonsterInfo>,
     val baseInfo: BaseInfo,
+    val giftInfo: GiftInfo,
 ) {
     @Serializable
     data class MonsterInfo(
@@ -115,6 +116,12 @@ data class TowelInfo(
         val buyNum: Int,
         val cost: Int,
         val alive: Int,
+    )
+
+    @Serializable
+    data class GiftInfo(
+        @SerialName("gift_status")
+        val giftStatus: Int,
     )
 
 }

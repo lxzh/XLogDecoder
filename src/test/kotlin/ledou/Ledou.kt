@@ -778,9 +778,14 @@ internal class LeDou {
         autoRebirth: Boolean = false
     ) {
         println("----千层塔----")
+        var info = getTowelInfo() ?: return
+        if (info.giftInfo.giftStatus == 1) {
+            val r = server.checkRequest { common(uid, mapOf("cmd" to "tower", "op" to "award")) }
+            println("领取闯关奖励: ${r.msg}")
+        }
         while (true) {
             delay(100)
-            val info = getTowelInfo() ?: break
+            info = getTowelInfo() ?: break
             val baseInfo = info.baseInfo
             println("当前在 ${baseInfo.layer}层 第${baseInfo.barrier}关, 是否存活: ${baseInfo.alive}, 免费复活次数: ${baseInfo.revive}")
             if (baseInfo.alive > 0) {
