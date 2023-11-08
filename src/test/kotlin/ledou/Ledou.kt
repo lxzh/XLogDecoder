@@ -111,10 +111,35 @@ internal class LeDou {
     @Test
     fun dailyGif(): Unit = runBlocking {
         println("----每日奖励----")
-        getGiftImpl("企鹅闹钟1", 7, 0)
-        getGiftImpl("企鹅闹钟2", 7, 1)
-        getGiftImpl("企鹅闹钟3", 7, 2)
-        getGiftImpl("每日便当", 19)
+        val hour = LocalDateTime.now().hour
+        //企鹅闹钟
+        when (hour) {
+            in 11 until 13 -> {
+                getGiftImpl("企鹅闹钟1", 7, 0)
+            }
+
+            in 16 until 18 -> {
+                getGiftImpl("企鹅闹钟2", 7, 1)
+            }
+
+            in 19 until 21 -> {
+                getGiftImpl("企鹅闹钟3", 7, 2)
+            }
+
+            else -> {
+                println("企鹅闹钟时间未到")
+            }
+        }
+        //每日便当
+        when (hour) {
+            in 11 until 14, in 16 until 21 -> {
+                getGiftImpl("每日便当", 19)
+            }
+
+            else -> {
+                println("每日便当时间未到")
+            }
+        }
         //抽签
         draw()
         //农场
@@ -747,14 +772,7 @@ internal class LeDou {
 
     private suspend fun kitchen() {
         for (i in 0 until 10) {
-            val r = getGiftImpl(
-                null, mapOf(
-                    "aid" to "5",
-                    "subcmd" to "Add",
-                    "cmd" to "activity",
-                    "is_double" to "1",
-                )
-            )
+            val r = getGiftImpl(null, mapOf("aid" to "5", "subcmd" to "Add", "cmd" to "activity", "is_double" to "1"))
             val meiwei = r.getInt("meiwei")
             if (meiwei <= 0) {
                 break
@@ -818,12 +836,8 @@ internal class LeDou {
     private suspend fun fightTowel(monsterInfo: TowelInfo.MonsterInfo): Boolean {
         val r = server.checkRequest {
             common(
-                uid, mapOf(
-                    "cmd" to "tower",
-                    "op" to "battle",
-                    "needreload" to "1",
-                    "index" to "${monsterInfo.index}",
-                )
+                uid,
+                mapOf("cmd" to "tower", "op" to "battle", "needreload" to "1", "index" to "${monsterInfo.index}")
             )
         }
         println("挑战[id: ${monsterInfo.id}, 序号: ${monsterInfo.index}, 等级: ${monsterInfo.level}] 结果: ${r.msg}")
@@ -832,13 +846,7 @@ internal class LeDou {
 
     private suspend fun getTowelInfo(): TowelInfo? {
         val r = server.checkRequest {
-            common(
-                uid, mapOf(
-                    "cmd" to "tower",
-                    "op" to "mainpage",
-                    "needreload" to "1",
-                )
-            )
+            common(uid, mapOf("cmd" to "tower", "op" to "mainpage", "needreload" to "1"))
         }
         return if (r.isSuccess) {
             jsonDefault.decodeFromJsonElement<TowelInfo>(r)
@@ -850,13 +858,7 @@ internal class LeDou {
 
     private suspend fun buyLife() {
         val r = server.checkRequest {
-            common(
-                uid, mapOf(
-                    "cmd" to "tower",
-                    "op" to "buylife",
-                    "type" to "free",
-                )
-            )
+            common(uid, mapOf("cmd" to "tower", "op" to "buylife", "type" to "free"))
         }
         if (r.isSuccess) {
             println("复活成功")
@@ -922,7 +924,8 @@ internal class LeDou {
                 if (it.getInt("locked", -1) == 1) {
                     server.checkRequest {
                         common(
-                            uid, mapOf(
+                            uid,
+                            mapOf(
                                 "cmd" to "marry_hangup",
                                 "op" to "unlock",
                                 "type" to "1",
@@ -1009,15 +1012,7 @@ internal class LeDou {
         key1: String
     ) {
         val r = server.checkRequest {
-            common(
-                uid, mapOf(
-                    "cmd" to "activity",
-                    "aid" to "129",
-                    "subcmd" to subcmd,
-                    "key0" to key0,
-                    "key1" to key1,
-                )
-            )
+            common(uid, mapOf("cmd" to "activity", "aid" to "129", "subcmd" to subcmd, "key0" to key0, "key1" to key1))
         }
         println(r.msg)
     }
@@ -1029,11 +1024,7 @@ internal class LeDou {
     }
 
     private suspend fun drawImpl() {
-        //aid 9
-        //"status": 1,
-        //"seconds": 28638,
-        //"choose_idx": 1,
-        //"multiple": 4,
+        //aid 9 "status": 1,"seconds": 28638,"choose_idx": 1,"multiple": 4,
         var r = server.checkRequest {
             common(uid, mapOf("cmd" to "activity", "aid" to "9"))
         }
@@ -1114,19 +1105,12 @@ internal class LeDou {
         var r = server.checkRequest {
             common(uid, mapOf("cmd" to "faction", "op" to "escort"))
         }
-        val robTimes = r.getJsonObject("user_info")?.getInt("rob_times") ?: 0
+
         val scortTimes = r.getJsonObject("user_info")?.getInt("scort_times") ?: 0
         println("已押镖次数: $scortTimes, 剩余次数: ${3 - scortTimes}")
         repeat(3 - scortTimes) {
             r = server.checkRequest {
-                common(
-                    uid, mapOf(
-                        "cmd" to "faction",
-                        "op" to "escort",
-                        "subcmd" to "add",
-                        "type" to "0",
-                    )
-                )
+                common(uid, mapOf("cmd" to "faction", "op" to "escort", "subcmd" to "add", "type" to "0"))
             }
             if (!r.isSuccess) {
                 println("押镖失败: ${r.msg}")
@@ -1134,24 +1118,12 @@ internal class LeDou {
             }
             repeat(2) {
                 r = server.checkRequest {
-                    common(
-                        uid, mapOf(
-                            "cmd" to "faction",
-                            "op" to "escort",
-                            "subcmd" to "update",
-                        )
-                    )
+                    common(uid, mapOf("cmd" to "faction", "op" to "escort", "subcmd" to "update"))
                 }
                 println("升级品质: ${r.msg}, 是否成功: ${r.getInt("is_update")}")
             }
             r = server.checkRequest {
-                common(
-                    uid, mapOf(
-                        "cmd" to "faction",
-                        "op" to "escort",
-                        "subcmd" to "begin",
-                    )
-                )
+                common(uid, mapOf("cmd" to "faction", "op" to "escort", "subcmd" to "begin"))
             }
             println("开始押镖: ${r.msg}")
         }
@@ -1175,6 +1147,10 @@ internal class LeDou {
             }
             useSnowLotus(r)
         }
+        r = server.checkRequest {
+            common(uid, mapOf("cmd" to "meridian", "op" to "visitpage"))
+        }
+        println("当前修为池: ${r.getLong("spirit")}")
 
     }
 
@@ -1182,17 +1158,13 @@ internal class LeDou {
         result.getJsonArray("awards")?.apply {
             val awards = jsonDefault.decodeFromJsonElement<List<MeridianAwards>>(this)
             awards.filter {
-                it.id == 100001L
-            }.also {
-                it.map { award ->
-                    "${award.id}"
-                }.also(::println)
+                it.id == 100001L || it.id == 100002L
             }.forEach { award ->
                 delay(10)
                 val r = server.checkRequest {
                     common(uid, mapOf("cmd" to "meridian", "op" to "award", "index" to "${award.index}"))
                 }
-                println("自动服用雪莲: ${r.msg}")
+                println("自动服用${award.name}: ${r.msg}")
             }
         }
     }
@@ -1311,9 +1283,9 @@ internal class LeDou {
             r = server.checkRequest {
                 common(uid, mapOf("cmd" to "activity", "aid" to "24", "sub" to "1"))
             }
-            val award = r.getJsonObject("award")?.getJsonArray("items")?.map {
+            val award = r.getJsonObject("award")?.getJsonArray("items")?.joinToString(", ") {
                 "${it.getString("name")}x${it.getInt("num")}"
-            }?.joinToString(", ")
+            }
             println("转动黄金轮盘: ${r.msg}, 获得: [$award]")
         }
     }
@@ -1434,6 +1406,7 @@ internal class LeDou {
         var r = request()
         if (r is JsonObject && r.getInt("result") == 110) {
             println("登录超时: $r")
+            throw IllegalStateException("登录超时: $r")
             //val r1 = server.refresh(uid, wxcode)
             //println("重试: $r1")
             //h5token = r1.getString("token")
