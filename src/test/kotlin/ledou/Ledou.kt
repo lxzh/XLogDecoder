@@ -2,7 +2,6 @@
 
 package ledou
 
-
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -23,7 +22,6 @@ import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.system.measureTimeMillis
-
 
 internal class LeDou {
 
@@ -111,35 +109,10 @@ internal class LeDou {
     @Test
     fun dailyGif(): Unit = runBlocking {
         println("----每日奖励----")
-        val hour = LocalDateTime.now().hour
         //企鹅闹钟
-        when (hour) {
-            in 11 until 13 -> {
-                getGiftImpl("企鹅闹钟1", 7, 0)
-            }
-
-            in 16 until 18 -> {
-                getGiftImpl("企鹅闹钟2", 7, 1)
-            }
-
-            in 19 until 21 -> {
-                getGiftImpl("企鹅闹钟3", 7, 2)
-            }
-
-            else -> {
-                println("企鹅闹钟时间未到")
-            }
-        }
+        alarmClock()
         //每日便当
-        when (hour) {
-            in 11 until 14, in 16 until 21 -> {
-                getGiftImpl("每日便当", 19)
-            }
-
-            else -> {
-                println("每日便当时间未到")
-            }
-        }
+        bento()
         //抽签
         draw()
         //农场
@@ -150,6 +123,34 @@ internal class LeDou {
         kitchen()
         //猜一猜
         guess()
+    }
+
+    private suspend fun alarmClock(): Any = when (LocalDateTime.now().hour) {
+        in 11 until 13 -> {
+            getGiftImpl("企鹅闹钟1", 7, 0)
+        }
+
+        in 16 until 18 -> {
+            getGiftImpl("企鹅闹钟2", 7, 1)
+        }
+
+        in 19 until 21 -> {
+            getGiftImpl("企鹅闹钟3", 7, 2)
+        }
+
+        else -> {
+            println("企鹅闹钟时间未到")
+        }
+    }
+
+    private suspend fun bento(): Any = when (LocalDateTime.now().hour) {
+        in 11 until 14, in 16 until 21 -> {
+            getGiftImpl("每日便当", 19)
+        }
+
+        else -> {
+            println("每日便当时间未到")
+        }
     }
 
     private suspend fun taskReward() {
@@ -274,17 +275,6 @@ internal class LeDou {
             println("扫荡第${index + 1}次 => $s")
         }
     }
-
-    private val simpleDateFormat = SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault())
-
-    private fun Long.secondToFormat(): String {
-        val h = this / 3600L
-        val m = this % 3600L / 60L
-        val s = this % 3600L % 60
-        return "${h.toDateString()}:${m.toDateString()}:${s.toDateString()}"
-    }
-
-    private fun Long.toDateString() = if (this >= 10) "$this" else "0$this"
 
     //光明顶
     private suspend fun faction() {
@@ -762,20 +752,15 @@ internal class LeDou {
         desc: String? = null,
         aid: Int,
         idx: Int = 0,
-    ) = getGiftImpl(
-        desc, mapOf(
-            "aid" to "$aid",
-            "idx" to "$idx",
-            "subcmd" to "GetGift"
-        )
-    )
+    ) = getGiftImpl(desc, mapOf("aid" to "$aid", "idx" to "$idx", "subcmd" to "GetGift"))
 
     private suspend fun kitchen() {
         for (i in 0 until 10) {
             val r = getGiftImpl(null, mapOf("aid" to "5", "subcmd" to "Add", "cmd" to "activity", "is_double" to "1"))
             val meiwei = r.getInt("meiwei")
             if (meiwei <= 0) {
-                break
+                println("菜菜厨房加菜失败: ${r.msg}")
+                return
             }
             println("[菜菜厨房加菜] 美味度: $meiwei")
             if (meiwei >= 80) {
@@ -783,12 +768,7 @@ internal class LeDou {
             }
             delay(10)
         }
-        getGiftImpl(
-            "菜菜厨房出餐", mapOf(
-                "aid" to "5",
-                "subcmd" to "Make",
-            )
-        )
+        getGiftImpl("菜菜厨房出餐", mapOf("aid" to "5", "subcmd" to "Make"))
     }
 
     //千层塔
@@ -1400,6 +1380,17 @@ internal class LeDou {
             println("第${curPics}题, 答案: 第${answerId + 1}个[${answerName}]: ${r.msg}")
         }
     }
+
+    private val simpleDateFormat = SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault())
+
+    private fun Long.secondToFormat(): String {
+        val h = this / 3600L
+        val m = this % 3600L / 60L
+        val s = this % 3600L % 60
+        return "${h.toDateString()}:${m.toDateString()}:${s.toDateString()}"
+    }
+
+    private fun Long.toDateString() = if (this >= 10) "$this" else "0$this"
 
     private suspend fun <T> LeDouApi.checkRequest(request: suspend LeDouApi.() -> T): T {
         delay(10)
