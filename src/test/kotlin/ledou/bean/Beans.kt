@@ -8,20 +8,23 @@ import ledou.decoded
 @Serializable
 data class FactionSource(
     val id: Int,
-
     //1野马 2粮草 3强盗 4探子 5阵营 6总阵营
     val type: Int,
-
     val distance: Int,
-
     val status: Int,
-
     val quality: Int,
-
-    val left_hp: Int = -1,
-
-    val type_index: Int,
+    val index: Int = 0,
+    val name: String = "",
+    val max_hp: Int = 0,
+    val left_hp: Int = 0,
 ) {
+    val showName = when (type) {
+        1 -> "野马"
+        2 -> "粮草"
+        5, 6 -> "阵营 $name"
+        else -> name
+    }
+
     val sort = when (type) {
         1 -> 1
         2 -> 2
@@ -31,6 +34,12 @@ data class FactionSource(
         6 -> 3
         else -> type
     }
+
+    val showInfo: String = when (type) {
+        3, 4, 5, 6 -> "[${showName}($left_hp/$max_hp), id: ${id}, 类型: ${type}, 品质: ${quality}, 距离: ${distance}]"
+        else -> "[${showName}, 类型: ${type}, 品质: ${quality}, 距离: ${distance}, id: ${id}, ]"
+    }
+
 }
 
 //矿藏
