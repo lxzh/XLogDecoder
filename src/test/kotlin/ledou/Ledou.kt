@@ -8,8 +8,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
 import ledou.api.LeDouApi
 import ledou.bean.*
 import ledou.client.*
@@ -206,12 +204,9 @@ internal class LeDou {
         area_id: Int,
         onFind: suspend (Int, Int, Jewel) -> Unit = { _, _, _ -> }
     ) {
-        val r = server.checkRequest {
+        server.checkRequest {
             getKuangZang(uid = uid, area_id = area_id)
-        }
-        //log("result: $r")
-        val jewelList = r.jsonObject["jewel_list"]?.jsonArray
-        jewelList?.forEachIndexed { index, je ->
+        }.getJsonArray("jewel_list")?.forEachIndexed { index, je ->
             val jewel: Jewel = jsonDefault.decodeFromJsonElement(je)
             onFind(area_id, index, jewel)
         }
@@ -252,18 +247,17 @@ internal class LeDou {
         level: Int,
         times: Int,
     ) {
-        delay(10)
         //历练
         val r = server.checkRequest { startExperience(uid, map, level, times) }
-        val gifts = r.jsonObject["gifts"]?.jsonArray
+        val gifts = r.getJsonArray("gifts")
         if (gifts == null) {
             log("扫荡失败: ${r.msg}")
             return
         }
         gifts.forEachIndexed { index, gift ->
-            val award = gift.jsonObject["award"] ?: return@forEachIndexed
-            val attrs = award.jsonObject["attrs"]?.jsonArray ?: return@forEachIndexed
-            val items = award.jsonObject["items"]?.jsonArray ?: return@forEachIndexed
+            val award = gift.getJsonObject("award") ?: return@forEachIndexed
+            val attrs = award.getJsonArray("attrs") ?: return@forEachIndexed
+            val items = award.getJsonArray("items") ?: return@forEachIndexed
             val s = buildString {
                 attrs.forEach {
                     append("${it.getString("name")}x${it.getString("num")} ")
@@ -439,10 +433,10 @@ internal class LeDou {
             delay(10)
             server.checkRequest {
                 viewRoom(uid, pager, roomType.level, roomType.type)
-            }.getJsonArray("room_array")?.also {
-                jsonDefault.decodeFromJsonElement<List<RoomEntity.Room>>(it).forEach { room ->
-                    list.add(RoomEntity(pager = pager + 1, roomType = roomType, room = room))
-                }
+            }.getJsonArray("room_array")?.let {
+                jsonDefault.decodeFromJsonElement<List<RoomEntity.Room>>(it)
+            }?.forEach { room ->
+                list.add(RoomEntity(pager = pager + 1, roomType = roomType, room = room))
             }
         }
         return list
@@ -1154,17 +1148,16 @@ internal class LeDou {
     }
 
     private suspend fun useSnowLotus(result: JsonObject) {
-        result.getJsonArray("awards")?.apply {
-            val awards = jsonDefault.decodeFromJsonElement<List<MeridianAwards>>(this)
-            awards.filter {
-                it.id == 100001L || it.id == 100002L
-            }.forEach { award ->
-                delay(10)
-                val r = server.checkRequest {
-                    common(uid, mapOf("cmd" to "meridian", "op" to "award", "index" to "${award.index}"))
-                }
-                log("自动服用${award.name}: ${r.msg}")
+        result.getJsonArray("awards")?.let {
+            jsonDefault.decodeFromJsonElement<List<MeridianAwards>>(it)
+        }?.filter {
+            it.id == 100001L || it.id == 100002L
+        }?.forEach { award ->
+            delay(10)
+            val r = server.checkRequest {
+                common(uid, mapOf("cmd" to "meridian", "op" to "award", "index" to "${award.index}"))
             }
+            log("自动服用${award.name}: ${r.msg}")
         }
     }
 
