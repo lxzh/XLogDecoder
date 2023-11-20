@@ -6,6 +6,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import ledou.api.LeDouApi
@@ -46,7 +47,7 @@ internal class LeDou {
 //        val token = r.getString("token")
 //        log(token)
 //        log(r)
-        faction()
+
     }
 
     @Test
@@ -73,6 +74,8 @@ internal class LeDou {
         doushen()
         //光明顶
         faction()
+        //帮派（捐献、武馆、洞穴）
+        guild()
         //游历
         marryHangup()
         //押镖
@@ -344,14 +347,114 @@ internal class LeDou {
                 val r1 = server.checkRequest { factionAddMove(uid, it.id) }
                 val msg = r1.msg
                 if (r1.isSuccess) {
-                    log("添加行动 ${it.showInfo}: $msg")
+                    log("添加行动${it.showInfo}成功")
                     times--
                 } else {
-                    log("添加行动 ${it.showInfo} 失败, (${r1.result}): $msg")
+                    log("添加行动${it.showInfo}失败, (${r1.result}): $msg")
                 }
                 //log(r)
             }
         }
+    }
+
+    //帮派
+    private suspend fun guild() {
+        //捐赠
+        run {
+            log("----帮派捐献----")
+            val query = server.checkRequest { factionQuery(uid) }
+            if (!query.isSuccess) {
+                log("查询帮派信息失败: ${query.msg}")
+                return@run
+            }
+            val donationFlags = query.getJsonObject("user_faction")?.getInt("donation_flags") ?: 0
+            if (donationFlags == 0) {
+                val donation = server.checkRequest {
+                    common(uid, mapOf("cmd" to "faction", "op" to "donation", "type" to "0", "contrib" to "30000"))
+                }
+                log("每日捐献: ${donation.msg}")
+            } else {
+                log("今日已经捐献, flag: $donationFlags")
+            }
+        }
+
+        //武馆
+        run {
+            println("----武馆----")
+            val getclub = server.checkRequest {
+                common(uid, mapOf("cmd" to "faction", "op" to "getclub"))
+            }
+            if (!getclub.isSuccess) {
+                log("查询武馆信息失败: ${getclub.msg}")
+                return@run
+            }
+            val fightCount = getclub.getInt("fight_count")
+            val fightMaxcount = getclub.getInt("fight_maxcount")
+            val remain = fightMaxcount - fightCount
+            if (remain <= 0) {
+                log("没有挑战次数了")
+                return@run
+            }
+            repeat(remain) { i ->
+                val clubfight = server.checkRequest {
+                    common(uid, mapOf("cmd" to "faction", "op" to "clubfight", "club_type" to "$i"))
+                }
+                log("武馆挑战[$i]: ${clubfight.msg}")
+            }
+        }
+
+        //洞穴
+        run {
+            println("----神秘洞穴----")
+            val caveQuery = server.checkRequest {
+                common(uid, mapOf("cmd" to "faction", "op" to "cave_query"))
+            }
+            if (!caveQuery.isSuccess) {
+                log("查询洞穴信息失败: ${caveQuery.msg}")
+                return@run
+            }
+            val cave = caveQuery.getJsonObject("cave") ?: return@run
+            val monster = cave.getJsonArray("monster") ?: JsonArray(emptyList())
+            val boss = cave.getJsonObject("boss")?.getJsonArray("monster") ?: JsonArray(emptyList())
+            val all = monster.plus(boss)
+
+            val seq = cave.getLong("seq")
+            val times = cave.getJsonObject("fighter")?.getInt("times") ?: 0
+            var remain = 3 - times
+            if (remain <= 0) {
+                log("没有挑战次数了")
+                return@run
+            }
+            all.forEach {
+                val hp = it.getLong("hp")
+                if (hp <= 0) {
+                    return@forEach
+                }
+                while (true) {
+                    if (remain <= 0) {
+                        log("没有挑战次数了")
+                        return@run
+                    }
+                    val id = it.getString("id")
+                    val maxhp = it.getLong("maxhp")
+                    val name = it.getString("name")
+                    val caveFight = server.checkRequest {
+                        common(uid, mapOf("cmd" to "faction", "op" to "cave_fight", "seq" to "$seq", "monster" to id))
+                    }
+                    if (!caveFight.isSuccess) {
+                        log("挑战[$name], 剩余血量:[$hp/$maxhp]失败: ${caveFight.msg}")
+                        break
+                    }
+                    remain--
+                    val killed = caveFight.getInt("killed") == 1
+                    val deductHp = caveFight.getLong("deduct_hp")
+                    val remainHp = caveFight.getLong("remain_hp")
+                    log("挑战[$name], 造成伤害: $deductHp, 剩余血量: [$remainHp/$maxhp], 是否击败: $killed")
+                    if (killed) break
+                }
+            }
+        }
+
     }
 
     //练功房
@@ -1021,11 +1124,11 @@ internal class LeDou {
         val seconds = r.getLong("seconds")
         log("status: $status, 距离领取时间: ${seconds.secondToFormat()}")
         if (status == 0) {
-            r = server.checkRequest {
-                common(uid, mapOf("cmd" to "activity", "aid" to "9", "sub" to "1", "choose_idx" to "1"))
-            }
+            // r = server.checkRequest {
+            //     common(uid, mapOf("cmd" to "activity", "aid" to "9", "sub" to "1", "choose_idx" to "1"))
+            // }
             log("选择奖励: ${r.msg}")
-            drawImpl()
+            //drawImpl()
             return
         }
         if (seconds <= 0) {
@@ -1395,11 +1498,17 @@ internal class LeDou {
 
     private val simpleDateFormat = SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault())
 
-    private fun Long.secondToFormat(): String {
+    private fun Long.secondToFormat(): String = if (this >= 86400L) {
+        val d = this / 86400L
+        val h = (this % 86400L) / 3600L
+        val m = (this % 86400L) % 3600L / 60L
+        val s = (this % 86400L) % 3600L % 60
+        "${d}天 ${h.toDateString()}:${m.toDateString()}:${s.toDateString()}"
+    } else {
         val h = this / 3600L
         val m = this % 3600L / 60L
         val s = this % 3600L % 60
-        return "${h.toDateString()}:${m.toDateString()}:${s.toDateString()}"
+        "${h.toDateString()}:${m.toDateString()}:${s.toDateString()}"
     }
 
     private fun Long.toDateString() = if (this >= 10) "$this" else "0$this"

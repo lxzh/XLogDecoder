@@ -36,8 +36,8 @@ data class FactionSource(
     }
 
     val showInfo: String = when (type) {
-        3, 4, 5, 6 -> "[${showName}($left_hp/$max_hp), id: ${id}, 类型: ${type}, 品质: ${quality}, 距离: ${distance}]"
-        else -> "[${showName}, 类型: ${type}, 品质: ${quality}, 距离: ${distance}, id: ${id}, ]"
+        3, 4, 5, 6 -> "[${showName}($left_hp/$max_hp), 类型: ${type}, 品质: ${quality}, 距离: ${distance}, id: ${id}]"
+        else -> "[${showName}, 类型: ${type}, 品质: ${quality}, 距离: ${distance}, id: ${id}]"
     }
 
 }
