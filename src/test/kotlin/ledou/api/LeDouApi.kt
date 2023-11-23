@@ -1,4 +1,4 @@
-@file:Suppress("unused", "SpellCheckingInspection")
+@file:Suppress("SpellCheckingInspection")
 
 package ledou.api
 
@@ -103,14 +103,6 @@ interface LeDouApi {
 
     @FormUrlEncoded
     @POST("/fcgi-bin/petpk")
-    suspend fun qualifyingRank(
-        @Field("uid") uid: String,
-        @Field("cmd") cmd: String = "qualifying",
-        @Field("op") op: String = "rank",
-    ): JsonObject
-
-    @FormUrlEncoded
-    @POST("/fcgi-bin/petpk")
     suspend fun qualifyingFight(
         @Field("uid") uid: String,
         @Field("cmd") cmd: String = "qualifying",
@@ -132,19 +124,10 @@ interface LeDouApi {
 
     @FormUrlEncoded
     @POST("/fcgi-bin/petpk")
-    suspend fun getGift(
-        @Field("uid") uid: String,
-        @FieldMap params: Map<String, String>,
-        @Field("is_double") is_double: String = "1",
-        @Field("cmd") cmd: String = "activity",
-    ): JsonObject
-
-    @FormUrlEncoded
-    @POST("/fcgi-bin/petpk")
     suspend fun common(
         @Field("uid") uid: String,
+        @Field("cmd") cmd: String,
         @FieldMap params: Map<String, String>,
     ): JsonObject
-
 
 }
