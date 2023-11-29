@@ -42,4 +42,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "KTDemo"
 include(":leetCode")
-include(":ssh-script")
+include(":app")

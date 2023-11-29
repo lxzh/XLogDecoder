@@ -5,3 +5,4 @@ build
 /out/
 /src/test/kotlin/temp/
 /src/test/kotlin/common/temp/
+/app/src/test/kotlin/common/temp/

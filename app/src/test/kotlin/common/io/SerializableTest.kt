@@ -1,7 +1,6 @@
 package common.io
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 
 class SerializableTest {

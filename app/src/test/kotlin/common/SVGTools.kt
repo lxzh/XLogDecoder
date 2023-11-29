@@ -1,11 +1,8 @@
 package common
 
 import java.io.File
-import java.io.FileWriter
 import java.io.FileReader
-import java.lang.Exception
-import java.lang.StringBuilder
-import java.util.ArrayList
+import java.io.FileWriter
 
 internal object SVGTools {
     /**

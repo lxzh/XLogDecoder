@@ -48,10 +48,6 @@ dependencies {
 
 }
 
-tasks.test {
+tasks.getByName<Test>("test") {
     useJUnitPlatform()
-}
-
-kotlin {
-    jvmToolchain(11)
 }
