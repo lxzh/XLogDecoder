@@ -46,6 +46,16 @@ dependencies {
     // https://mvnrepository.com/artifact/org.cheffo/jeplite
     implementation("org.cheffo:jeplite:0.8.7a")
 
+    // https://mvnrepository.com/artifact/org.apache.sshd/sshd-mina
+    // https://github.com/apache/mina-sshd/blob/master/docs/client-setup.md
+    val sshdVersion = "2.10.0"
+    //implementation("org.apache.sshd:sshd-mina:$sshdVersion")
+    implementation("org.apache.sshd:sshd-core:$sshdVersion")
+    implementation("org.apache.sshd:sshd-common:$sshdVersion")
+    implementation("org.apache.sshd:sshd-putty:$sshdVersion")
+    //implementation("org.apache.sshd:apache-sshd:$sshdVersion")
+    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("ch.qos.logback:logback-classic:1.2.9")
 }
 
 tasks.getByName<Test>("test") {

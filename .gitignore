@@ -6,3 +6,5 @@ build
 /src/test/kotlin/temp/
 /src/test/kotlin/common/temp/
 /app/src/test/kotlin/common/temp/
+/app/log/rolling/
+/app/out/
