@@ -1,6 +1,12 @@
 ## Compose版 XLog解密工具
-
+这是微信Mars中的xlog文件解密程序Compose版本
 支持单个/多个文件/目录批量解密
+
+## 使用方法
+1. 可以直接在IDEA中gradle运行 `run`
+2. 或者执行`packageMsi`、`packageDeb`打包成Windows或Linux上的安装包之后，再安装后运行
+
+## 程序截图
 
 ![截图1](/screens/screenshot1.jpg)
 
