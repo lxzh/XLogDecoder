@@ -1,6 +1,7 @@
 package com.virogu.decoder
 
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECParameterSpec
 import org.bouncycastle.jce.spec.ECPrivateKeySpec
 import org.bouncycastle.jce.spec.ECPublicKeySpec
@@ -8,12 +9,13 @@ import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
+import java.security.Security
 import javax.crypto.KeyAgreement
 
 object ECDHUtils {
 
     init {
-        //Security.addProvider(BouncyCastleProvider())
+        Security.addProvider(BouncyCastleProvider())
     }
 
     @Throws(Exception::class)

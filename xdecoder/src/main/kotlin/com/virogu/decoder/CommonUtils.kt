@@ -6,12 +6,9 @@ import java.nio.ByteOrder
 import java.util.*
 import java.util.zip.Inflater
 import java.util.zip.InflaterOutputStream
+import kotlin.experimental.or
 
 object CommonUtils {
-    private fun charToByte(c: Char): Byte {
-        return "0123456789ABCDEF".indexOf(c).toByte()
-    }
-
     @JvmStatic
     fun hexStringToBytes(hex: String?): ByteArray? {
         var hexString = hex
@@ -23,8 +20,8 @@ object CommonUtils {
         val hexChars = hexString.toCharArray()
         val d = ByteArray(length)
         for (i in 0 until length) {
-            val pos = i * 2
-            d[i] = (charToByte(hexChars[pos]).toInt() shl 4 or charToByte(hexChars[pos + 1]).toInt()).toByte()
+            val pos = i*2
+            d[i] = (Character.digit(hexChars[pos], 16) shl 4).toByte() or Character.digit(hexChars[pos + 1], 16).toByte()
         }
         return d
     }
@@ -69,10 +66,10 @@ object CommonUtils {
     }
 
     @JvmStatic
-    fun bytesToHexString(src: ByteArray?): String? {
+    fun bytesToHexString(src: ByteArray?): String {
         val stringBuilder = StringBuilder("")
         if (src == null || src.isEmpty()) {
-            return null
+            return ""
         }
         for (i in src.indices) {
             val v = src[i].toInt() and 0xFF

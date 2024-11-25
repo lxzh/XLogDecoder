@@ -46,7 +46,7 @@ tasks.compileTestKotlin {
 }
 
 dependencies {
-    implementation(files("libs\\bcprov-jdk15on-159.jar"))
+    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation(compose.desktop.currentOs)
