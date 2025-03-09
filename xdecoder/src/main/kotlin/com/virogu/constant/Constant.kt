@@ -8,7 +8,7 @@ object Constant {
     private val preferences = Preferences.userRoot()
 
     fun getPrivateKey(): String {
-        return preferences.get("privateKey", "")
+        return preferences.get("privateKey", PRI_KEY)
     }
 
     fun setPrivateKey(key: String) {
